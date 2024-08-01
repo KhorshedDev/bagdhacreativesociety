@@ -10,12 +10,14 @@ import {
   where,
   query,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import {
   ref,
   uploadBytes,
   getDownloadURL,
   deleteObject,
+  uploadBytesResumable,
 } from "firebase/storage";
 
 const addUser = async (userData, file) => {
@@ -39,6 +41,50 @@ const addUser = async (userData, file) => {
     alert("Someting is wrong!");
   }
 };
+const updateUser = async (userId, updatedData, file) => {
+  try {
+    let fileUrl = updatedData.pictureUrl || ""; // Keep the existing picture URL if not updating
+
+    if (file) {
+      // If a new file is provided, upload it to Firebase Storage
+      const storageRef = ref(storage, `userPictures/${userId}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      fileUrl = await getDownloadURL(snapshot.ref);
+    }
+    if (!userId) {
+      throw new Error("User ID is not provided!");
+    }
+
+    const q = query(collection(db, "users"), where("id", "==", userId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      throw new Error("No such user!");
+    }
+
+    let userDocRef = null;
+    let userData = null;
+
+    querySnapshot.forEach((doc) => {
+      userDocRef = doc.ref; // Get the document reference
+      userData = doc.data();
+    });
+
+    // Update the user document in Firestore
+
+    await updateDoc(userDocRef, {
+      ...updatedData,
+      pictureUrl: file ? fileUrl : userData.pictureUrl,
+    });
+
+    alert("Successfully updated user.");
+    console.log("Document updated with ID: ", userId);
+  } catch (e) {
+    console.error("Error updating document: ", e);
+    alert("Something went wrong!");
+  }
+};
+
 const deleteUser = async (userId) => {
   try {
     if (!userId) {
@@ -78,6 +124,17 @@ const deleteUser = async (userId) => {
     } else {
       console.warn("No picture URL found for this user.");
     }
+    const querySnapshotMeta = await getDocs(collection(db, "metadata"));
+    const meta = [];
+    querySnapshotMeta.forEach((doc) => {
+      meta.push({ id: doc.id, ...doc.data() });
+    });
+    const metaDoc = doc(db, "metadata", meta[0].id);
+    await setDoc(
+      metaDoc,
+      { totalAll: Number(meta[0].totalAll) - Number(userData.total) },
+      { merge: true }
+    );
 
     // Delete the user document from Firestore
     await deleteDoc(userDocRef);
@@ -174,6 +231,22 @@ const createRule = async (rule) => {
     console.error("Error adding document: ", e);
   }
 };
+const createVision = async (vision) => {
+  try {
+    const docRef = await addDoc(collection(db, "visions"), vision);
+    console.log("Document written with ID: ", docRef.id);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+};
+const createNotice = async (notice) => {
+  try {
+    const docRef = await addDoc(collection(db, "notices"), notice);
+    console.log("Document written with ID: ", docRef.id);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+};
 const getRules = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, "rules"));
@@ -186,7 +259,30 @@ const getRules = async () => {
     console.error("Error getting documents: ", e);
   }
 };
-
+const getVisions = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "visions"));
+    const visions = [];
+    querySnapshot.forEach((doc) => {
+      visions.push({ id: doc.id, ...doc.data() });
+    });
+    return visions;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+  }
+};
+const getNotices = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "notices"));
+    const notices = [];
+    querySnapshot.forEach((doc) => {
+      notices.push({ id: doc.id, ...doc.data() });
+    });
+    return notices;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+  }
+};
 const updateRule = async (id, updatedRule) => {
   try {
     const ruleDoc = doc(db, "rules", id);
@@ -196,9 +292,43 @@ const updateRule = async (id, updatedRule) => {
     console.error("Error updating document: ", e);
   }
 };
+const updateVison = async (id, updatedRule) => {
+  try {
+    const visionDoc = doc(db, "visions", id);
+    await setDoc(visionDoc, updatedRule, { merge: true });
+    console.log("Document updated with ID: ", id);
+  } catch (e) {
+    console.error("Error updating document: ", e);
+  }
+};
+const updateNotice = async (id, updatedRule) => {
+  try {
+    const noticeDoc = doc(db, "notices", id);
+    await setDoc(noticeDoc, updatedRule, { merge: true });
+    console.log("Document updated with ID: ", id);
+  } catch (e) {
+    console.error("Error updating document: ", e);
+  }
+};
 const deleteRule = async (id) => {
   try {
     await deleteDoc(doc(db, "rules", id));
+    console.log("Document deleted with ID: ", id);
+  } catch (e) {
+    console.error("Error deleting document: ", e);
+  }
+};
+const deleteVison = async (id) => {
+  try {
+    await deleteDoc(doc(db, "visions", id));
+    console.log("Document deleted with ID: ", id);
+  } catch (e) {
+    console.error("Error deleting document: ", e);
+  }
+};
+const deleteNotice = async (id) => {
+  try {
+    await deleteDoc(doc(db, "notices", id));
     console.log("Document deleted with ID: ", id);
   } catch (e) {
     console.error("Error deleting document: ", e);
@@ -226,6 +356,39 @@ const getMetaData = async () => {
   }
 };
 
+const uploadImage = async (file) => {
+  return new Promise((resolve, reject) => {
+    const storageRef = ref(storage, `images/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      null,
+      (error) => {
+        reject(error);
+      },
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        const docRef = await addDoc(collection(db, "images"), {
+          url: downloadURL,
+          name: file.name,
+        });
+        resolve({ id: docRef.id, url: downloadURL, name: file.name });
+      }
+    );
+  });
+};
+
+const deleteImage = async (image) => {
+  const storageRef = ref(storage, `images/${image.name}`);
+  await deleteObject(storageRef);
+  await deleteDoc(doc(db, "images", image.id));
+};
+
+const fetchImages = async () => {
+  const querySnapshot = await getDocs(collection(db, "images"));
+  return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+};
 export {
   addUser,
   deleteUser,
@@ -236,6 +399,18 @@ export {
   getRules,
   updateRule,
   deleteRule,
+  createNotice,
+  createVision,
+  deleteNotice,
+  deleteVison,
+  updateNotice,
+  updateVison,
+  getNotices,
+  getVisions,
   createMetaData,
   getMetaData,
+  uploadImage,
+  deleteImage,
+  fetchImages,
+  updateUser,
 };

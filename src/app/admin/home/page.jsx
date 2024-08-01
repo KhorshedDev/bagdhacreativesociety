@@ -28,7 +28,7 @@ export default function Home() {
           <Link href="rules">
             <div className="rounded w-60 max-sm:w-32 h-60 max-sm:h-32 m-4 bg-gray-200 flex justify-center items-center text-blue-400">
               <p className="font-medium max-sm:font-normal max-sm:text-sm">
-                Rules
+                Rules, Notice and Vision
               </p>
             </div>
           </Link>
@@ -36,6 +36,13 @@ export default function Home() {
             <div className="rounded w-60 max-sm:w-32 h-60 max-sm:h-32 m-4 bg-gray-200 flex justify-center items-center text-blue-400">
               <p className="font-medium max-sm:font-normal max-sm:text-sm">
                 Meta Data
+              </p>
+            </div>
+          </Link>
+          <Link href="photos">
+            <div className="rounded w-60 max-sm:w-32 h-60 max-sm:h-32 m-4 bg-gray-200 flex justify-center items-center text-blue-400">
+              <p className="font-medium max-sm:font-normal max-sm:text-sm">
+                Photos
               </p>
             </div>
           </Link>

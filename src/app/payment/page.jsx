@@ -4,6 +4,7 @@ import Link from "next/link";
 import Footer from "@/components/Footer";
 import { getMetaData } from "@/lib/userService";
 import { useEffect, useState } from "react";
+import Loading from "@/components/Loading";
 
 export default function Contact() {
   const [meta, setMeta] = useState(null);
@@ -16,7 +17,7 @@ export default function Contact() {
     setMeta(d);
   };
   if (!meta) {
-    return <p className="text-center font-bold text-lg">Loading...</p>;
+    return <Loading />;
   }
   return (
     <main className="bg-white min-h-svh">

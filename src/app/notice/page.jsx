@@ -1,22 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { getMetaData } from "@/lib/userService";
 import Footer from "@/components/Footer";
+import { getNotices } from "@/lib/userService";
+import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 
 export default function Contact() {
-  const [meta, setMeta] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   useEffect(() => {
     getData();
   }, []);
   const getData = async () => {
-    const d = await getMetaData();
-    setMeta(d);
+    const d = await getNotices();
+    setNotice(d);
   };
-  if (!meta) {
+  if (!notice) {
     return <Loading />;
   }
   return (
@@ -28,12 +28,13 @@ export default function Contact() {
           </Link>
         </nav>
         <div>
-          <h1 className="text-center font-bold pb-2 mb-4">
-            আমাদের সাথে যোগাযোগ এর উপায়
-          </h1>
-          <div className="flex flex-col justify-center items-center p-9 bg-gray-200 rounded">
-            <p className="font-bold my-2">{meta.phone}</p>
-            <p className="font-bold">{meta.email}</p>
+          <h1 className="text-center font-bold pb-2 mb-4 border-b-2">নোটিশ</h1>
+          <div>
+            {notice.map((i) => (
+              <p className="my-4 p-3 bg-gray-200 rounded" key={i.id}>
+                {i.notice}
+              </p>
+            ))}
           </div>
         </div>
       </div>

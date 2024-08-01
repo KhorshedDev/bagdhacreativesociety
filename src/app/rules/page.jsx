@@ -3,6 +3,8 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { getRules } from "@/lib/userService";
+import Loading from "@/components/Loading";
+
 export default function Rules() {
   const [todoList, setTodoList] = useState(null);
 
@@ -14,7 +16,7 @@ export default function Rules() {
     setTodoList(d);
   };
   if (!todoList) {
-    return <p className="text-center font-bold text-lg">Loading...</p>;
+    return <Loading />;
   }
   return (
     <main className="bg-white min-h-svh">

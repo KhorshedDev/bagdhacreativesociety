@@ -1,17 +1,19 @@
 "use client";
-import Footer from "@/components/Footer";
+
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { getMetaData } from "@/lib/userService";
+import Footer from "@/components/Footer";
+import { getVisions } from "@/lib/userService";
+import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
-export default function Deposite() {
+
+export default function Contact() {
   const [meta, setMeta] = useState(null);
 
   useEffect(() => {
     getData();
   }, []);
   const getData = async () => {
-    const d = await getMetaData();
+    const d = await getVisions();
     setMeta(d);
   };
   if (!meta) {
@@ -25,11 +27,17 @@ export default function Deposite() {
             হোম এ ফিরে যান
           </Link>
         </nav>
-        <div className="flex flex-col justity-center items-center w-full pt-48 max-sm:pt-28">
-          <h1 className="font-bold text-5xl max-sm:text-3xl">
-            {meta.totalAll}
+        <div>
+          <h1 className="text-center font-bold pb-2 mb-4 border-b-2">
+            উদ্দেশ্য ও লক্ষ্য-ঃ
           </h1>
-          <p className="mt-2 font-bold">আমাদের লক্ষ্য : {meta.target} tk</p>
+          <div>
+            {meta.map((i) => (
+              <p className="my-4 p-3 bg-gray-200 rounded" key={i.id}>
+                {i.vision}
+              </p>
+            ))}
+          </div>
         </div>
       </div>
       <Footer />

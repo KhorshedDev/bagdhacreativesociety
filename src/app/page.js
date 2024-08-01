@@ -5,6 +5,7 @@ import Link from "next/link";
 import Footer from "@/components/Footer";
 import { getMetaData } from "@/lib/userService";
 import { useState, useEffect } from "react";
+import Loading from "@/components/Loading";
 
 export default function Home() {
   const [meta, setMeta] = useState(null);
@@ -21,10 +22,13 @@ export default function Home() {
   const listOfMenu = [
     { link: "/", name: "হোম", key: 0 },
     { link: "/members", name: "সদস্য", key: 1 },
-    { link: "/deposite", name: "জমা", key: 2 },
-    { link: "/rules", name: "নিয়ম", key: 3 },
-    { link: "/contact", name: "যোগাযোগ", key: 4 },
-    { link: "/payment", name: "জমার মাধ্যম ", key: 5 },
+    { link: "/notice", name: "নোটিশ", key: 2 },
+    { link: "/deposite", name: "জমা", key: 3 },
+    { link: "/rules", name: "নীতিমালা ", key: 4 },
+    { link: "/vision", name: "লক্ষ্য ও উদ্দেশ্য", key: 5 },
+    { link: "/contact", name: "যোগাযোগ", key: 6 },
+    { link: "/payment", name: "জমার মাধ্যম ", key: 7 },
+    { link: "/photos", name: "ছবি ঘর", key: 8 },
   ];
   const MenuItem = ({ name, link }) => {
     return (
@@ -39,7 +43,7 @@ export default function Home() {
     );
   };
   if (!meta) {
-    return <p className="text-center font-bold text-lg">Loading...</p>;
+    return <Loading />;
   }
   return (
     <main className="bg-white min-h-svh">
