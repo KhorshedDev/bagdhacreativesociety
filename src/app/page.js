@@ -22,11 +22,11 @@ export default function Home() {
   const listOfMenu = [
     { link: "/", name: "হোম", key: 0 },
     { link: "/members", name: "সদস্য", key: 1 },
-    { link: "/notice", name: "নোটিশ", key: 2 },
     { link: "/deposite", name: "জমা", key: 3 },
     { link: "/rules", name: "নীতিমালা ", key: 4 },
     { link: "/vision", name: "লক্ষ্য ও উদ্দেশ্য", key: 5 },
     { link: "/contact", name: "যোগাযোগ", key: 6 },
+    { link: "/notice", name: "নোটিশ", key: 2 },
     { link: "/payment", name: "জমার মাধ্যম ", key: 7 },
     { link: "/photos", name: "ছবি ঘর", key: 8 },
   ];
@@ -53,6 +53,13 @@ export default function Home() {
           <Link href="/">
             <Image src="/logo.jpg" alt="somiti logo" width={300} height={300} />
           </Link>
+          <div>
+            <div class="overflow-hidden whitespace-nowrap">
+              <div class="inline-block animate-marquee text-red-600">
+                &quot; ইহা একটি সম্পূর্ণ অরাজনৈতিক সোসাইটি &quot;
+              </div>
+            </div>
+          </div>
           <nav className="my-4 max-sm:w-full">
             <ul className="p-3 flex bg-gray-100 flex-col md:flex-row max-sm:w-full">
               {listOfMenu.map((item) => (
@@ -60,6 +67,7 @@ export default function Home() {
               ))}
             </ul>
           </nav>
+
           <div className="my-5">
             {meta.pictureUrl && (
               <Image
