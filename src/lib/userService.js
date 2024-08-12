@@ -6,6 +6,7 @@ import {
   doc,
   setDoc,
   getDoc,
+  orderBy,
   getDocs,
   where,
   query,
@@ -257,12 +258,14 @@ const createNotice = async (notice) => {
 };
 const getRules = async () => {
   try {
-    const querySnapshot = await getDocs(collection(db, "rules"));
-    const rules = [];
+    const q = query(collection(db, "rules"), orderBy("created", "asc")); // Order by 'created' timestamp in ascending order
+    const querySnapshot = await getDocs(q);
+    const todos = [];
     querySnapshot.forEach((doc) => {
-      rules.push({ id: doc.id, ...doc.data() });
+      todos.push({ id: doc.id, ...doc.data() });
     });
-    return rules;
+    console.log(todos.length);
+    return todos;
   } catch (e) {
     console.error("Error getting documents: ", e);
   }

@@ -17,6 +17,7 @@ import {
   deleteVison,
 } from "@/lib/userService";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { Timestamp } from "firebase/firestore";
 
 export default function Rules() {
   const [todo, setTodo] = useState("");
@@ -38,15 +39,19 @@ export default function Rules() {
     fetchVisions();
   }, []);
   const addTodo = async () => {
+    if (todo == "") {
+      alert("Add something first.");
+      return;
+    }
     if (editMode) {
-      await updateRule(id, { rule: todo });
+      await updateRule(id, { rule: todo, created: Timestamp.now() });
       setTodo("");
       setEditMode(false);
       await fetchRules();
       return;
     }
     setLoading(true);
-    await createRule({ rule: todo });
+    await createRule({ rule: todo, created: Timestamp.now() });
     setTodo("");
     await fetchRules();
     setLoading(false);
@@ -86,7 +91,6 @@ export default function Rules() {
   const fetchNotices = async () => {
     const noticeList = await getNotices();
     setNoticeList(noticeList);
-    console.log(noticeList);
   };
   const fetchVisions = async () => {
     const visionList = await getVisions();
@@ -119,6 +123,7 @@ export default function Rules() {
     setId(i.id);
     setEditNotice(true);
   };
+
   return (
     <ProtectedRoute>
       <main className="bg-white min-h-svh">
@@ -146,9 +151,9 @@ export default function Rules() {
               </button>
             </div>
 
-            {todolist.length > 0 ? (
+            {todolist?.length > 0 ? (
               <ul>
-                {todolist.map((i) => {
+                {todolist?.map((i) => {
                   return (
                     <li key={i.id} className="bg-gray-100 p-2 my-1">
                       {i.rule}
