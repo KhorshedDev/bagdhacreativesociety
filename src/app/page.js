@@ -56,8 +56,8 @@ export default function Home() {
           <div className="w-full">
             <div class="w-full overflow-hidden whitespace-nowrap">
               <div class="inline-block animate-marquee text-red-600 font-bold">
-                &quot; ইহা একটি সম্পূর্ণ অরাজনৈতিক ও ব্যাক্তিকেন্দ্রিক ক্ষুদ্র
-                সঞ্চয় নির্ভর প্রতিষ্ঠান &quot;
+                &quot; ইহা একটি সম্পূর্ণ অরাজনৈতিক এবং ব্যক্তি সঞ্চয় ও বিনিয়োগ
+                নির্ভর ক্ষুদ্র সংগঠন &quot;
               </div>
             </div>
           </div>
