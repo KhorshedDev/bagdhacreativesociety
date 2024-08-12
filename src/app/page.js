@@ -22,13 +22,13 @@ export default function Home() {
   const listOfMenu = [
     { link: "/", name: "হোম", key: 0 },
     { link: "/members", name: "সদস্য", key: 1 },
-    { link: "/deposite", name: "জমা", key: 3 },
-    { link: "/rules", name: "নীতিমালা ", key: 4 },
-    { link: "/vision", name: "লক্ষ্য ও উদ্দেশ্য", key: 5 },
-    { link: "/contact", name: "যোগাযোগ", key: 6 },
-    { link: "/notice", name: "নোটিশ", key: 2 },
+    { link: "/deposite", name: "মোট জমা ও বিনিয়োগ", key: 3 },
     { link: "/payment", name: "জমার মাধ্যম ", key: 7 },
+    { link: "/vision", name: "লক্ষ্য ও উদ্দেশ্য", key: 5 },
+    { link: "/rules", name: "নীতিমালা ", key: 4 },
+    { link: "/notice", name: "নোটিশ", key: 2 },
     { link: "/photos", name: "ছবি ঘর", key: 8 },
+    { link: "/contact", name: "যোগাযোগ", key: 6 },
   ];
   const MenuItem = ({ name, link }) => {
     return (
@@ -53,10 +53,11 @@ export default function Home() {
           <Link href="/">
             <Image src="/logo.jpg" alt="somiti logo" width={300} height={300} />
           </Link>
-          <div>
-            <div class="overflow-hidden whitespace-nowrap">
-              <div class="inline-block animate-marquee text-red-600">
-                &quot; ইহা একটি সম্পূর্ণ অরাজনৈতিক সোসাইটি &quot;
+          <div className="w-full">
+            <div class="w-full overflow-hidden whitespace-nowrap">
+              <div class="inline-block animate-marquee text-red-600 font-bold">
+                &quot; ইহা একটি সম্পূর্ণ অরাজনৈতিক ও ব্যাক্তিকেন্দ্রিক ক্ষুদ্র
+                সঞ্চয় নির্ভর প্রতিষ্ঠান &quot;
               </div>
             </div>
           </div>

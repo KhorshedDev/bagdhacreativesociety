@@ -19,7 +19,7 @@ export default function Member({ isWeb, userData, fun }) {
   const [userInfo, setUserInfo] = useState({
     id: userData.id,
     name: userData.name,
-    phone: userData.total,
+    phone: userData.phone,
     fatherName: userData.fatherName,
     share: userData.share,
     monthRate: userData.monthRate,

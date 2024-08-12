@@ -231,6 +231,14 @@ const createRule = async (rule) => {
     console.error("Error adding document: ", e);
   }
 };
+const createInvest = async (invest) => {
+  try {
+    const docRef = await addDoc(collection(db, "invests"), invest);
+    console.log("Document written with ID: ", docRef.id);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+};
 const createVision = async (vision) => {
   try {
     const docRef = await addDoc(collection(db, "visions"), vision);
@@ -250,6 +258,18 @@ const createNotice = async (notice) => {
 const getRules = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, "rules"));
+    const rules = [];
+    querySnapshot.forEach((doc) => {
+      rules.push({ id: doc.id, ...doc.data() });
+    });
+    return rules;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+  }
+};
+const getInvest = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "invests"));
     const rules = [];
     querySnapshot.forEach((doc) => {
       rules.push({ id: doc.id, ...doc.data() });
@@ -292,6 +312,15 @@ const updateRule = async (id, updatedRule) => {
     console.error("Error updating document: ", e);
   }
 };
+const updateInvest = async (id, updatedData) => {
+  try {
+    const investDoc = doc(db, "invests", id);
+    await setDoc(investDoc, updatedData, { merge: true });
+    console.log("Document updated with ID: ", id);
+  } catch (e) {
+    console.error("Error updating document: ", e);
+  }
+};
 const updateVison = async (id, updatedRule) => {
   try {
     const visionDoc = doc(db, "visions", id);
@@ -313,6 +342,14 @@ const updateNotice = async (id, updatedRule) => {
 const deleteRule = async (id) => {
   try {
     await deleteDoc(doc(db, "rules", id));
+    console.log("Document deleted with ID: ", id);
+  } catch (e) {
+    console.error("Error deleting document: ", e);
+  }
+};
+const deleteInvest = async (id) => {
+  try {
+    await deleteDoc(doc(db, "invests", id));
     console.log("Document deleted with ID: ", id);
   } catch (e) {
     console.error("Error deleting document: ", e);
@@ -413,4 +450,8 @@ export {
   deleteImage,
   fetchImages,
   updateUser,
+  deleteInvest,
+  updateInvest,
+  createInvest,
+  getInvest,
 };

@@ -14,12 +14,12 @@ module.exports = {
       },
       keyframes: {
         marquee: {
-          "0%": { transform: "translateX(100%)" },
+          "0%": { transform: "translateX(150%)" },
           "100%": { transform: "translateX(-100%)" },
         },
       },
       animation: {
-        marquee: "marquee 10s linear infinite",
+        marquee: "marquee 15s linear infinite",
       },
     },
   },
