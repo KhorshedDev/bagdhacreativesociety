@@ -73,6 +73,13 @@ export default function Home() {
                   </p>
                 </div>
               </Link>
+              <Link href="committee">
+                <div className="rounded w-60 max-sm:w-32 h-60 max-sm:h-32 m-4 bg-gray-200 flex justify-center items-center text-blue-400">
+                  <p className="font-medium max-sm:font-normal max-sm:text-sm">
+                    Committee
+                  </p>
+                </div>
+              </Link>
             </>
           )}
         </div>

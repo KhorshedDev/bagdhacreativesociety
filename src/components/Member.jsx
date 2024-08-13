@@ -7,8 +7,15 @@ import PopUp from "@/components/PopUp";
 
 const TableOfPay = ({ data }) => (
   <div className=" py-3 px-2 flex justify-between items-center my-2">
-    <p className="text-center">{data.date}</p>
+    <div>
+      <p className="text-center">{data.date}</p>
+      <p className="text-sm text-gray-600">
+        {data.payDate ? new Date(data.payDate.toDate()).toDateString() : "-"}
+      </p>
+    </div>
+
     <p className="text-center">{data.payMathod}</p>
+    <p className="text-center">{data.rashid ? data.rashid : "-"}</p>
     <p className="text-center">{data.amount}tk</p>
   </div>
 );
@@ -127,6 +134,7 @@ export default function Member({ isWeb, userData, fun }) {
             <div className="bg-gray-300 py-3 px-2 flex justify-between items-center mt-5">
               <p className="text-center font-medium">Pay Month</p>
               <p className="text-center font-medium">Pay Mathod</p>
+              <p className="text-center font-medium">Rashid No</p>
               <p className="text-center font-medium">Pay Amount</p>
             </div>
             <div>

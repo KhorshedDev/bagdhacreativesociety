@@ -256,6 +256,27 @@ const createNotice = async (notice) => {
     console.error("Error adding document: ", e);
   }
 };
+
+const createCommittee = async (committee) => {
+  try {
+    const docRef = await addDoc(collection(db, "committees"), committee);
+    console.log("Document written with ID: ", docRef.id);
+  } catch (e) {
+    console.error("Error adding committee.", e);
+  }
+};
+const getCommittees = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "committees"));
+    const committees = [];
+    querySnapshot.forEach((doc) => {
+      committees.push({ id: doc.id, ...doc.data() });
+    });
+    return committees;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+  }
+};
 const getRules = async () => {
   try {
     const q = query(collection(db, "rules"), orderBy("created", "asc")); // Order by 'created' timestamp in ascending order
@@ -353,6 +374,14 @@ const deleteRule = async (id) => {
 const deleteInvest = async (id) => {
   try {
     await deleteDoc(doc(db, "invests", id));
+    console.log("Document deleted with ID: ", id);
+  } catch (e) {
+    console.error("Error deleting document: ", e);
+  }
+};
+const deleteCommittee = async (id) => {
+  try {
+    await deleteDoc(doc(db, "committees", id));
     console.log("Document deleted with ID: ", id);
   } catch (e) {
     console.error("Error deleting document: ", e);
@@ -457,4 +486,7 @@ export {
   updateInvest,
   createInvest,
   getInvest,
+  createCommittee,
+  getCommittees,
+  deleteCommittee,
 };

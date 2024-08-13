@@ -15,6 +15,8 @@ export default function AddDeposite() {
   const [year, setYear] = useState("2024");
   const [mathod, setMathod] = useState("bkash");
   const [amount, setAmount] = useState("");
+  const [rashid, setRashid] = useState("");
+  const [payDate, setPayDate] = useState(null);
   const [running, setRunning] = useState(false);
   const [errorInFuc, setErrorInFuc] = useState(false);
 
@@ -38,7 +40,13 @@ export default function AddDeposite() {
     setRunning(true);
     setErrorInFuc(false);
     try {
-      const data = { date: `${month}-${year}`, payMathod: mathod, amount };
+      const data = {
+        date: `${month}-${year}`,
+        payMathod: mathod,
+        amount,
+        rashid,
+        payDate: new Date(payDate),
+      };
       await updateUserPayroll(id, data);
       setRunning(false);
       setUser("");
@@ -147,6 +155,13 @@ export default function AddDeposite() {
                     </option>
                   ))}
                 </select>
+                <p> Payment Date</p>
+                <input
+                  className="w-5/6 py-2 px-4 bg-blue-200"
+                  type="date"
+                  value={payDate}
+                  onChange={(e) => setPayDate(e.target.value)}
+                />
                 <p className="font-medium my-3">Enter Amount</p>
                 <input
                   className="w-5/6 py-2 px-4 bg-blue-200"
@@ -155,6 +170,15 @@ export default function AddDeposite() {
                   min="0"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
+                />
+                <p className="font-medium my-3">Rashid No</p>
+                <input
+                  className="w-5/6 py-2 px-4 bg-blue-200"
+                  type="text"
+                  name="rashid"
+                  min="0"
+                  value={rashid}
+                  onChange={(e) => setRashid(e.target.value)}
                 />
                 <button
                   disabled={running}

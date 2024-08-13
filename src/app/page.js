@@ -20,7 +20,7 @@ export default function Home() {
   };
 
   const listOfMenu = [
-    { link: "/", name: "হোম", key: 0 },
+    { link: "/committee", name: "পরিচালক পর্ষদ", key: 0 },
     { link: "/members", name: "সদস্য", key: 1 },
     { link: "/deposite", name: "মোট জমা ও বিনিয়োগ", key: 3 },
     { link: "/payment", name: "জমার মাধ্যম ", key: 7 },
