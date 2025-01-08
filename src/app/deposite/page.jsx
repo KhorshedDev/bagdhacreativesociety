@@ -5,9 +5,11 @@ import { useState, useEffect } from "react";
 import { getMetaData, getInvest } from "@/lib/userService";
 import Loading from "@/components/Loading";
 import InvestCard from "@/components/InvestCard";
+import HiddenNotice from "@/components/HiddenNotice";
 export default function Deposite() {
   const [meta, setMeta] = useState(null);
   const [invest, setInvest] = useState(null);
+  const [rightPass, setRightPass] = useState(false);
   useEffect(() => {
     getData();
   }, []);
@@ -28,24 +30,33 @@ export default function Deposite() {
             হোম এ ফিরে যান
           </Link>
         </nav>
-        <h1 className="font-bold text-2xl text-center py-4 bg-gray-100 mb-10">
-          মোট জমা
-        </h1>
-        <div className="flex flex-col justity-center items-center w-full">
-          <h1 className="font-bold text-5xl max-sm:text-3xl">
-            {meta.totalAll}
-          </h1>
-          <p className="mt-2 font-bold">আমাদের লক্ষ্য : {meta.target} tk</p>
-        </div>
-        <h1 className="font-bold text-2xl text-center py-4 bg-gray-100 mb-4 mt-10">
-          বিনিয়োগ
-        </h1>
-        <div>
-          {invest?.map((item) => {
-            return <InvestCard key={item.id} isWeb={true} investData={item} />;
-          })}
-        </div>
+        {rightPass ? (
+          <div>
+            <h1 className="font-bold text-2xl text-center py-4 bg-gray-100 mb-10">
+              মোট জমা
+            </h1>
+            <div className="flex flex-col justity-center items-center w-full">
+              <h1 className="font-bold text-5xl max-sm:text-3xl">
+                {meta.totalAll}
+              </h1>
+              <p className="mt-2 font-bold">আমাদের লক্ষ্য : {meta.target} tk</p>
+            </div>
+            <h1 className="font-bold text-2xl text-center py-4 bg-gray-100 mb-4 mt-10">
+              বিনিয়োগ
+            </h1>
+            <div>
+              {invest?.map((item) => {
+                return (
+                  <InvestCard key={item.id} isWeb={true} investData={item} />
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <HiddenNotice func={setRightPass} />
+        )}
       </div>
+
       <Footer />
     </main>
   );
