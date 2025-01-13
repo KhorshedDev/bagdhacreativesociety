@@ -59,7 +59,7 @@ export default function Members() {
             </div>
           )}
         </div>
-        <h1 className="text-lg font-bold text-center py-5 my-4 bg-blue-200">
+        {/* <h1 className="text-lg font-bold text-center py-5 my-4 bg-blue-200">
           আমাদের সদস্য{" "}
         </h1>
         <div className="p-4 mt-4 bg-gray-300">
@@ -78,7 +78,7 @@ export default function Members() {
           ) : (
             <p className="text-center py-5">No member are here</p>
           )}
-        </div>
+        </div> */}
       </div>
     </main>
   );
