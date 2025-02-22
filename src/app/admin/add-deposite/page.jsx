@@ -139,6 +139,7 @@ export default function AddDeposite() {
                   onChange={(e) => setYear(e.target.value)}
                 >
                   <option value="">Select Year</option>
+                  <option value="2024">2024</option>
                   <option value="2025">2025</option>
                   <option value="2026">2026</option>
                   <option value="2027">2027</option>
@@ -172,13 +173,16 @@ export default function AddDeposite() {
                   className="w-5/6 py-2 px-4 bg-blue-200"
                 >
                   <option value="">select amount</option>
-                  <option value="500">500</option>
                   <option value="1000">1000</option>
-                  <option value="1500">1500</option>
                   <option value="2000">2000</option>
-                  <option value="2500">2500</option>
                   <option value="3000">3000</option>
-                  <option value="3500">3500</option>
+                  <option value="4000">4000</option>
+                  <option value="5000">5000</option>
+                  <option value="6000">6000</option>
+                  <option value="7000">7000</option>
+                  <option value="8000">8000</option>
+                  <option value="9000">9000</option>
+                  <option value="10000">10,000</option>
                 </select>
 
                 <p className="font-medium my-3">Rashid No</p>
