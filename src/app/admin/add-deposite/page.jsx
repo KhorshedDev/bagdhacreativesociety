@@ -12,7 +12,7 @@ export default function AddDeposite() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [month, setMonth] = useState("Jan");
-  const [year, setYear] = useState("2024");
+  const [year, setYear] = useState("");
   const [mathod, setMathod] = useState("bkash");
   const [amount, setAmount] = useState("");
   const [rashid, setRashid] = useState("");
@@ -133,15 +133,18 @@ export default function AddDeposite() {
                   ))}
                 </select>
                 <p className="font-medium my-3">Select Year</p>
-                <input
+                <select
                   className="w-5/6 py-2 px-4 bg-blue-200"
-                  type="number"
-                  min="2024"
-                  max="2099"
-                  step="1"
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
-                />
+                >
+                  <option value="">Select Year</option>
+                  <option value="2025">2025</option>
+                  <option value="2026">2026</option>
+                  <option value="2027">2027</option>
+                  <option value="2028">2028</option>
+                  <option value="2029">2029</option>
+                </select>
                 <p className="font-medium my-3">Select payment method</p>
                 <select
                   className="w-5/6 py-2 px-4 bg-blue-200"
@@ -163,14 +166,21 @@ export default function AddDeposite() {
                   onChange={(e) => setPayDate(e.target.value)}
                 />
                 <p className="font-medium my-3">Enter Amount</p>
-                <input
-                  className="w-5/6 py-2 px-4 bg-blue-200"
-                  type="number"
-                  name="amount"
-                  min="0"
+                <select
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                />
+                  className="w-5/6 py-2 px-4 bg-blue-200"
+                >
+                  <option value="">select amount</option>
+                  <option value="500">500</option>
+                  <option value="1000">1000</option>
+                  <option value="1500">1500</option>
+                  <option value="2000">2000</option>
+                  <option value="2500">2500</option>
+                  <option value="3000">3000</option>
+                  <option value="3500">3500</option>
+                </select>
+
                 <p className="font-medium my-3">Rashid No</p>
                 <input
                   className="w-5/6 py-2 px-4 bg-blue-200"
