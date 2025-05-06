@@ -123,7 +123,7 @@ export default function Member({ isWeb, userData, fun }) {
           style={{ backgroundColor: "rgba(0,0,0)" }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 overflow-y-auto"
         >
-          <div className="relative mt-10 max-sm:mt-60 bg-white w-full max-w-3xl mx-auto p-6 rounded-lg shadow-lg">
+          <div className="relative mt-10 mb-10 max-h-screen overflow-auto max-sm:mt-10 bg-white w-full max-w-3xl mx-auto p-6 rounded-lg shadow-lg">
             <div className="flex justify-between items-center my-4">
               <button onClick={() => setExpand(false)}>Close</button>
               <p className="text-xl font-bold">
@@ -140,7 +140,7 @@ export default function Member({ isWeb, userData, fun }) {
             <div>
               {userData.payroll.length > 0 ? (
                 <div>
-                  {userData.payroll.map((item) => (
+                  {userData?.payroll?.slice().reverse().map((item) => (
                     <TableOfPay key={item.month} data={item} />
                   ))}
                 </div>
