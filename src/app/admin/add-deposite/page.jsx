@@ -167,23 +167,14 @@ export default function AddDeposite() {
                   onChange={(e) => setPayDate(e.target.value)}
                 />
                 <p className="font-medium my-3">Enter Amount</p>
-                <select
+                <input
+                  className="w-5/6 py-2 px-4 bg-blue-200"
+                  type="number"
+                  name="amount"
+                  min="0"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-5/6 py-2 px-4 bg-blue-200"
-                >
-                  <option value="">select amount</option>
-                  <option value="1000">1000</option>
-                  <option value="2000">2000</option>
-                  <option value="3000">3000</option>
-                  <option value="4000">4000</option>
-                  <option value="5000">5000</option>
-                  <option value="6000">6000</option>
-                  <option value="7000">7000</option>
-                  <option value="8000">8000</option>
-                  <option value="9000">9000</option>
-                  <option value="10000">10,000</option>
-                </select>
+                />
 
                 <p className="font-medium my-3">Rashid No</p>
                 <input

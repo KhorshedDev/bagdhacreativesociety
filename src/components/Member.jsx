@@ -4,21 +4,41 @@ import { useState } from "react";
 import Image from "next/image";
 import { deleteUser, updateUser } from "@/lib/userService";
 import PopUp from "@/components/PopUp";
+import { useRouter } from "next/navigation";
 
-const TableOfPay = ({ data }) => (
-  <div className=" py-3 px-2 flex justify-between items-center my-2">
-    <div>
-      <p className="text-center">{data.date}</p>
-      <p className="text-sm text-gray-600">
-        {data.payDate ? new Date(data.payDate.toDate()).toDateString() : "-"}
-      </p>
+const TableOfPay = ({ data }) => {
+  const [edit, setEdit] = useState(false);
+  const [newVal, setNewVal] = useState(0)
+  return (
+    <div className=" py-3 px-2 flex flex-wrap justify-between items-center my-2 bg-gray-100">
+      {!edit ? <>
+
+        <div className="flex flex-col m-2">
+          <button onClick={() => setEdit(true)} className="p-2 bg-blue-400">E</button>
+          <button className="p-2 bg-red-400">D</button>
+        </div>
+        <div className="m-2">
+          <p className="text-center">{data.date}</p>
+          <p className="text-sm text-gray-600">
+            {data.payDate ? new Date(data.payDate).toDateString() : "-"}
+          </p>
+        </div>
+
+        <p className="text-center m-2">{data.payMathod}</p>
+        <p className="text-center m-2 ">{data.rashid ? data.rashid : "-"}</p>
+        <p className="text-center m-2">{data.amount}tk</p>
+      </> : <>
+        <p>Edit Amount</p>
+        <input type="number" value={newVal} onChange={e => setNewVal(e.target.value)} />
+        <div>
+          <button>Close</button>
+          <button>Save</button>
+        </div>
+      </>}
+
     </div>
-
-    <p className="text-center">{data.payMathod}</p>
-    <p className="text-center">{data.rashid ? data.rashid : "-"}</p>
-    <p className="text-center">{data.amount}tk</p>
-  </div>
-);
+  )
+};
 
 export default function Member({ isWeb, userData, fun }) {
   const [expand, setExpand] = useState(false);
@@ -35,6 +55,7 @@ export default function Member({ isWeb, userData, fun }) {
   });
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const router = useRouter()
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserInfo((prevState) => ({
@@ -111,7 +132,7 @@ export default function Member({ isWeb, userData, fun }) {
             </div>
           )}
           <button
-            onClick={() => setExpand(true)}
+            onClick={() => router.push(`/members/deposits?id=${userData.id}`)}
             className="ml-2 py-2 px-5 bg-blue-400 text-white rounded-sm max-sm:mt-2"
           >
             {isWeb ? "জমা দেখুন" : "See Deposits"}
@@ -132,6 +153,8 @@ export default function Member({ isWeb, userData, fun }) {
             </div>
 
             <div className="bg-gray-300 py-3 px-2 flex justify-between items-center mt-5">
+
+              <p className="text-center font-medium">Editor</p>
               <p className="text-center font-medium">Pay Month</p>
               <p className="text-center font-medium">Pay Mathod</p>
               <p className="text-center font-medium">Rashid No</p>

@@ -193,7 +193,128 @@ const updateUserPayroll = async (userId, payrollData) => {
     console.error("Error updating document: ", e);
   }
 };
+export const updateUserPayrollByIndex = async (
+  userId,
+  index,
+  updatedPayroll
+) => {
+  try {
+    const q = query(collection(db, "users"), where("id", "==", userId));
+    const querySnapshot = await getDocs(q);
 
+    if (querySnapshot.empty) throw new Error("No such user!");
+
+    let userDocRef = null;
+    let userData = null;
+
+    querySnapshot.forEach((doc) => {
+      userDocRef = doc.ref;
+      userData = doc.data();
+    });
+
+    let userPayroll = userData.payroll || [];
+
+    if (index < 0 || index >= userPayroll.length) {
+      throw new Error("Invalid payroll index.");
+    }
+
+    const existingAmount = Number(userPayroll[index].amount);
+    const newAmount = Number(updatedPayroll.amount);
+    const diff = newAmount - existingAmount;
+
+    // Replace item at index
+    userPayroll[index] = {
+      ...userPayroll[index],
+      ...updatedPayroll,
+    };
+
+    const newUserTotal = Number(userData.total) + diff;
+
+    // Update user
+    await setDoc(
+      userDocRef,
+      { payroll: userPayroll, total: newUserTotal },
+      { merge: true }
+    );
+
+    // Update metadata
+    const querySnapshotMeta = await getDocs(collection(db, "metadata"));
+    const metaDocSnap = querySnapshotMeta.docs[0];
+    const newTotalAll = Number(metaDocSnap.data().totalAll) + diff;
+
+    await setDoc(
+      doc(db, "metadata", metaDocSnap.id),
+      { totalAll: newTotalAll },
+      { merge: true }
+    );
+
+    alert("Successfully updated!");
+    return true;
+  } catch (e) {
+    console.error("Error updating document:", e);
+  }
+};
+
+export const deleteUserPayroll = async (userId, payrollIndex) => {
+  try {
+    const q = query(collection(db, "users"), where("id", "==", userId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) throw new Error("No such user!");
+
+    let userDocRef = null;
+    let userData = null;
+
+    querySnapshot.forEach((docSnap) => {
+      userDocRef = docSnap.ref;
+      userData = docSnap.data();
+    });
+
+    let userPayroll = userData.payroll || [];
+
+    if (payrollIndex < 0 || payrollIndex >= userPayroll.length) {
+      throw new Error("Invalid payroll index.");
+    }
+
+    const removedPayroll = userPayroll[payrollIndex];
+    const amountToSubtract = Number(removedPayroll.amount);
+
+    // Remove payroll item at index
+    userPayroll.splice(payrollIndex, 1);
+
+    const newUserTotal = Number(userData.total || 0) - amountToSubtract;
+
+    // Update user document
+    await setDoc(
+      userDocRef,
+      { payroll: userPayroll, total: newUserTotal },
+      { merge: true }
+    );
+
+    // Fetch metadata
+    const querySnapshotMeta = await getDocs(collection(db, "metadata"));
+    const meta = [];
+    querySnapshotMeta.forEach((doc) => {
+      meta.push({ id: doc.id, ...doc.data() });
+    });
+
+    if (!meta[0]) throw new Error("No metadata document found");
+
+    const metaDoc = doc(db, "metadata", meta[0].id);
+    const newTotalAll = Number(meta[0].totalAll || 0) - amountToSubtract;
+
+    // Update metadata total
+    await setDoc(metaDoc, { totalAll: newTotalAll }, { merge: true });
+
+    console.log("Payroll deleted at index:", payrollIndex);
+    alert("Payroll deleted successfully!");
+    return true;
+  } catch (e) {
+    console.error("Error deleting payroll entry:", e);
+    alert("Failed to delete payroll entry.");
+    return false;
+  }
+};
 const getUsers = async () => {
   const usersCollection = collection(db, "users");
   const userSnapshot = await getDocs(usersCollection);
