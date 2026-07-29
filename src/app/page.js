@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import { getMetaData } from "@/lib/userService";
@@ -37,7 +38,7 @@ export default function Home() {
 
   return (
     <main className="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 flex flex-col justify-between">
-      <div className="max-w-6xl mx-auto px-4 py-6 w-full">
+      <div className="max-w-6xl mx-auto px-4 pt-4 pb-2 w-full">
         <div className="flex flex-col items-center">
           <Link href="/" className="transition-transform hover:scale-105">
             <div className="relative p-2 bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700">
@@ -77,10 +78,11 @@ export default function Home() {
 
           {meta?.pictureUrl && (
             <div className="w-full my-8 rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2">
-              <Image
+              <SafeImage
                 className="w-full h-auto rounded-xl object-cover"
                 alt="Bagdha Creative Society Group Photo"
                 src={meta.pictureUrl}
+                fallbackType="photo"
                 width={1200}
                 height={600}
               />

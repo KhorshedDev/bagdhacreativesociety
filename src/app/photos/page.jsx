@@ -24,7 +24,7 @@ export default function PublicPhotos() {
   }
 
   return (
-    <main className="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 flex flex-col justify-between py-8">
+    <main className="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 flex flex-col justify-between pt-4 pb-0">
       <div className="max-w-5xl mx-auto px-4 w-full">
         <nav className="mb-6">
           <Link

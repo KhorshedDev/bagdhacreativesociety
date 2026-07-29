@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 import { getUsers } from "@/lib/userService";
 import { convertBengaliToEnglish, normalizeSearchQuery } from "@/lib/banglaToEnglish";
 import Member from "@/components/Member";
+import Footer from "@/components/Footer";
 
 export default function Members() {
   const [members, setMembers] = useState([]);
@@ -57,8 +58,8 @@ export default function Members() {
   }, [filteredMembers]);
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-8">
-      <div className="max-w-5xl mx-auto px-4">
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col justify-between pt-4 pb-0">
+      <div className="max-w-5xl mx-auto px-4 w-full">
         <nav className="py-4 flex justify-between items-center border-b border-slate-200 dark:border-slate-800 mb-6">
           <Link
             className="inline-flex items-center text-sm font-semibold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 transition-colors"
@@ -106,6 +107,7 @@ export default function Members() {
           )}
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

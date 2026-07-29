@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import { deleteUser, updateUser } from "@/lib/userService";
 import PopUp from "@/components/PopUp";
 import { useRouter } from "next/navigation";
@@ -115,11 +115,12 @@ export default function Member({ isWeb, userData, fun }) {
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow flex justify-between items-center max-sm:flex-col gap-4">
         <div className="flex items-center gap-4 max-sm:flex-col text-center max-sm:w-full">
           <div className="w-24 h-28 relative overflow-hidden rounded-lg border-2 border-emerald-100 dark:border-emerald-900 bg-slate-50 dark:bg-slate-900 flex items-center justify-center flex-shrink-0 shadow-inner">
-            <Image
+            <SafeImage
               width={120}
               height={150}
               alt={userData?.name || "Member Picture"}
-              src={userData.pictureUrl || DEFAULT_AVATAR}
+              src={userData.pictureUrl}
+              fallbackType="avatar"
               className="object-cover w-full h-full"
             />
           </div>

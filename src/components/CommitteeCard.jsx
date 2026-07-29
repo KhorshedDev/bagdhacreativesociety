@@ -1,10 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getUserById, deleteCommittee } from "@/lib/userService";
-import Image from "next/image";
-
-const DEFAULT_AVATAR =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' /%3E%3C/svg%3E";
+import SafeImage from "@/components/SafeImage";
 
 export default function CommitteeCard({ details, isweb, func }) {
   const [user, setUser] = useState(null);
@@ -31,11 +28,12 @@ export default function CommitteeCard({ details, isweb, func }) {
       {user ? (
         <>
           <div className="w-24 h-24 relative overflow-hidden rounded-full border-2 border-indigo-100 bg-gray-100 flex items-center justify-center">
-            <Image
-              src={user?.pictureUrl || DEFAULT_AVATAR}
+            <SafeImage
+              src={user?.pictureUrl}
               alt={user?.name || "Committee member photo"}
               width={100}
               height={100}
+              fallbackType="avatar"
               className="object-cover w-full h-full"
             />
           </div>
