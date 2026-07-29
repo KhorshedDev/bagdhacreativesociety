@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getMetaData, createMetaData } from "@/lib/userService";
 import Image from "next/image";
-import { storage } from "@/lib/firebase"; // Adjust the path to your firebase config file
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { uploadToSupabase } from "@/lib/supabase";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function MetaData() {
@@ -31,204 +30,137 @@ export default function MetaData() {
 
   const getMeta = async () => {
     const data = await getMetaData();
-    setMeta(data);
+    setMeta(data || {});
   };
 
   const updateValue = async (field, value) => {
+    if (!value) return;
     await createMetaData(meta.id, { [field]: value });
     await getMeta();
     setState((prevState) => ({ ...prevState, [field]: "" }));
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
   };
 
   const handleFileUpload = async () => {
     if (!file) return;
     setUploading(true);
     try {
-      const storageRef = ref(storage, `coverPictures/${meta.id}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const fileUrl = await getDownloadURL(snapshot.ref);
-
+      const fileUrl = await uploadToSupabase(file, "coverPictures");
       await createMetaData(meta.id, { pictureUrl: fileUrl });
       await getMeta();
-      alert("Picture uploaded successfully!");
-      setUploading(false);
+      alert("Cover picture uploaded successfully to Supabase Storage!");
+      setFile(null);
     } catch (e) {
       console.error("Error uploading picture: ", e);
-      alert("Something went wrong!");
+      alert("Something went wrong while uploading: " + (e.message || e));
+    } finally {
       setUploading(false);
     }
   };
 
   if (!meta) {
-    return <p className="text-center font-bold text-lg">Loading...</p>;
+    return <p className="text-center font-bold text-lg py-12">Loading metadata...</p>;
   }
 
   return (
     <ProtectedRoute>
-      <main className="bg-white min-h-svh">
-        <div className="w-5/6 mx-auto">
-          <nav className="py-4">
-            <Link className="text-blue-400" href="/admin/home">
-              Go Back
+      <main className="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <nav className="mb-6">
+            <Link
+              className="inline-flex items-center text-sm font-semibold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 transition-colors"
+              href="/admin/home"
+            >
+              ← Back to Admin Dashboard
             </Link>
           </nav>
-          <div>
+
+          <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-8">
             <div>
-              <h1 className="font-bold text-lg my-1">Bank Details</h1>
-              <ul>
-                <li className="p-3 bg-gray-100 my-1">
-                  Bkash number : {meta.bkash}
-                  <div>
+              <h1 className="text-2xl font-bold text-emerald-800 dark:text-emerald-400 border-b border-slate-200 dark:border-slate-700 pb-3 mb-4">
+                Website Meta & Contact Details
+              </h1>
+            </div>
+
+            {/* Bank Details */}
+            <div>
+              <h2 className="font-bold text-lg text-slate-900 dark:text-white mb-3">Bank Details</h2>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <li className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <p className="text-xs text-slate-500 font-semibold mb-1">Bkash Number</p>
+                  <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">{meta.bkash || "-"}</p>
+                  <div className="flex gap-2">
                     <input
                       value={state.bkash}
-                      className="border-none outline-none px-1 mt-1 bg-blue-100"
-                      type="text"
-                      onChange={(e) =>
-                        setState((prevState) => ({
-                          ...prevState,
-                          bkash: e.target.value,
-                        }))
-                      }
+                      placeholder="New Bkash number"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs outline-none"
+                      onChange={(e) => setState((p) => ({ ...p, bkash: e.target.value }))}
                     />
                     <button
                       onClick={() => updateValue("bkash", state.bkash)}
-                      className="text-white p-1 text-sm bg-blue-400 ml-2"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1 text-xs font-semibold rounded-lg"
                     >
                       Update
                     </button>
                   </div>
                 </li>
-                <li className="p-3 bg-gray-100 my-1">
-                  nagad : {meta.nagad}
-                  <div>
+
+                <li className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <p className="text-xs text-slate-500 font-semibold mb-1">Nagad Number</p>
+                  <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">{meta.nagad || "-"}</p>
+                  <div className="flex gap-2">
                     <input
                       value={state.nagad}
-                      className="border-none outline-none px-1 mt-1 bg-blue-100"
-                      type="text"
-                      onChange={(e) =>
-                        setState((prevState) => ({
-                          ...prevState,
-                          nagad: e.target.value,
-                        }))
-                      }
+                      placeholder="New Nagad number"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs outline-none"
+                      onChange={(e) => setState((p) => ({ ...p, nagad: e.target.value }))}
                     />
                     <button
                       onClick={() => updateValue("nagad", state.nagad)}
-                      className="text-white p-1 text-sm bg-blue-400 ml-2"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1 text-xs font-semibold rounded-lg"
                     >
                       Update
                     </button>
                   </div>
                 </li>
-                <li className="p-3 bg-gray-100 my-1">
-                  Acc name : {meta.acName}
-                  <div>
+
+                <li className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <p className="text-xs text-slate-500 font-semibold mb-1">Account Name</p>
+                  <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">{meta.acName || "-"}</p>
+                  <div className="flex gap-2">
                     <input
                       value={state.acName}
-                      className="border-none outline-none px-1 mt-1 bg-blue-100"
-                      type="text"
-                      onChange={(e) =>
-                        setState((prevState) => ({
-                          ...prevState,
-                          acName: e.target.value,
-                        }))
-                      }
+                      placeholder="New Account Name"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs outline-none"
+                      onChange={(e) => setState((p) => ({ ...p, acName: e.target.value }))}
                     />
                     <button
                       onClick={() => updateValue("acName", state.acName)}
-                      className="text-white p-1 text-sm bg-blue-400 ml-2"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1 text-xs font-semibold rounded-lg"
                     >
                       Update
                     </button>
                   </div>
                 </li>
-                <li className="p-3 bg-gray-100 my-1">
-                  ac : {meta.ac}
-                  <div>
+
+                <li className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <p className="text-xs text-slate-500 font-semibold mb-1">Account No.</p>
+                  <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">{meta.ac || "-"}</p>
+                  <div className="flex gap-2">
                     <input
                       value={state.ac}
-                      className="border-none outline-none px-1 mt-1 bg-blue-100"
-                      type="text"
-                      onChange={(e) =>
-                        setState((prevState) => ({
-                          ...prevState,
-                          ac: e.target.value,
-                        }))
-                      }
+                      placeholder="New Account No."
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs outline-none"
+                      onChange={(e) => setState((p) => ({ ...p, ac: e.target.value }))}
                     />
                     <button
                       onClick={() => updateValue("ac", state.ac)}
-                      className="text-white p-1 text-sm bg-blue-400 ml-2"
-                    >
-                      Update
-                    </button>
-                  </div>
-                </li>
-                <li className="p-3 bg-gray-100 my-1">
-                  Bank : {meta.bank}
-                  <div>
-                    <input
-                      value={state.bank}
-                      className="border-none outline-none px-1 mt-1 bg-blue-100"
-                      type="text"
-                      onChange={(e) =>
-                        setState((prevState) => ({
-                          ...prevState,
-                          bank: e.target.value,
-                        }))
-                      }
-                    />
-                    <button
-                      onClick={() => updateValue("bank", state.bank)}
-                      className="text-white p-1 text-sm bg-blue-400 ml-2"
-                    >
-                      Update
-                    </button>
-                  </div>
-                </li>
-                <li className="p-3 bg-gray-100 my-1">
-                  address : {meta.add}
-                  <div>
-                    <input
-                      value={state.add}
-                      className="border-none outline-none px-1 mt-1 bg-blue-100"
-                      type="text"
-                      onChange={(e) =>
-                        setState((prevState) => ({
-                          ...prevState,
-                          add: e.target.value,
-                        }))
-                      }
-                    />
-                    <button
-                      onClick={() => updateValue("add", state.add)}
-                      className="text-white p-1 text-sm bg-blue-400 ml-2"
-                    >
-                      Update
-                    </button>
-                  </div>
-                </li>
-                <li className="p-3 bg-gray-100 my-1">
-                  Routing : {meta.routing}
-                  <div>
-                    <input
-                      value={state.routing}
-                      className="border-none outline-none px-1 mt-1 bg-blue-100"
-                      type="text"
-                      onChange={(e) =>
-                        setState((prevState) => ({
-                          ...prevState,
-                          routing: e.target.value,
-                        }))
-                      }
-                    />
-                    <button
-                      onClick={() => updateValue("routing", state.routing)}
-                      className="text-white p-1 text-sm bg-blue-400 ml-2"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1 text-xs font-semibold rounded-lg"
                     >
                       Update
                     </button>
@@ -236,101 +168,43 @@ export default function MetaData() {
                 </li>
               </ul>
             </div>
-            <h1 className="font-bold text-lg my-1">Contact Details</h1>
-            <ul>
-              <li className="p-3 bg-gray-100 my-1">
-                Phone number : {meta.phone}
-                <div>
-                  <input
-                    value={state.phone}
-                    className="border-none outline-none px-1 mt-1 bg-blue-100"
-                    type="text"
-                    onChange={(e) =>
-                      setState((prevState) => ({
-                        ...prevState,
-                        phone: e.target.value,
-                      }))
-                    }
+
+            {/* Cover Picture */}
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+              <h2 className="font-bold text-lg text-slate-900 dark:text-white mb-2">
+                Homepage Group Cover Picture
+              </h2>
+              {meta.pictureUrl && (
+                <div className="relative w-full max-w-lg h-60 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 mb-4 bg-slate-100">
+                  <Image
+                    className="object-cover"
+                    alt="Group Cover Picture"
+                    fill
+                    src={meta.pictureUrl}
                   />
-                  <button
-                    onClick={() => updateValue("phone", state.phone)}
-                    className="text-white p-1 text-sm bg-blue-400 ml-2"
-                  >
-                    Update
-                  </button>
                 </div>
-              </li>
-              <li className="p-3 bg-gray-100 my-1">
-                Email Address : {meta.email}
-                <div>
-                  <input
-                    value={state.email}
-                    className="border-none outline-none px-1 mt-1 bg-blue-100"
-                    type="text"
-                    onChange={(e) =>
-                      setState((prevState) => ({
-                        ...prevState,
-                        email: e.target.value,
-                      }))
-                    }
-                  />
-                  <button
-                    onClick={() => updateValue("email", state.email)}
-                    className="text-white p-1 text-sm bg-blue-400 ml-2"
-                  >
-                    Update
-                  </button>
-                </div>
-              </li>
-            </ul>
-            <h1 className="font-bold text-lg my-1">Target</h1>
-            <p>
-              Target amount: {meta.target}{" "}
-              <span className="ml-2">
+              )}
+
+              <div className="max-w-md bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-2">
+                  Upload New Cover Picture (Supabase Storage)
+                </label>
                 <input
-                  value={state.target}
-                  className="border-none outline-none px-1 mt-1 bg-blue-100"
-                  type="text"
-                  onChange={(e) =>
-                    setState((prevState) => ({
-                      ...prevState,
-                      target: e.target.value,
-                    }))
-                  }
+                  onChange={handleFileChange}
+                  type="file"
+                  accept="image/*"
+                  disabled={uploading}
+                  className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                 />
                 <button
-                  onClick={() => updateValue("target", state.target)}
-                  className="text-white p-1 text-sm bg-blue-400 ml-2"
+                  disabled={uploading || !file}
+                  onClick={handleFileUpload}
+                  className="mt-3 w-full bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white text-xs font-semibold py-2 px-4 rounded-lg transition-colors"
                 >
-                  Update
+                  {uploading ? "Uploading to Supabase..." : "Upload Cover Picture"}
                 </button>
-              </span>
-            </p>
-            <h1 className="font-bold text-lg my-3">Cover Picture</h1>
-            {meta.pictureUrl && (
-              <Image
-                className="border-2 my-3"
-                alt="group picture"
-                width={400}
-                src={meta.pictureUrl}
-                height={250}
-              />
-            )}
-            <input
-              onChange={handleFileChange}
-              className="py-2 block"
-              type="file"
-              disabled={uploading}
-              name="coverPicture"
-              id="coverPicture"
-            />
-            <button
-              disabled={uploading}
-              onClick={handleFileUpload}
-              className="py-1 px-3 bg-blue-400 text-white mb-20"
-            >
-              {uploading ? "Uploading...." : "Upload New Picture"}
-            </button>
+              </div>
+            </div>
           </div>
         </div>
       </main>

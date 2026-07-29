@@ -1,89 +1,115 @@
 "use client";
+
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getUsers } from "@/lib/userService";
 import Member from "@/components/Member";
-import { convertBengaliToEnglish } from "@/lib/banglaToEnglish";
+import { convertBengaliToEnglish, normalizeSearchQuery } from "@/lib/banglaToEnglish";
 import ProtectedRoute from "@/components/ProtectedRoute";
+
 export default function Members() {
   const [members, setMembers] = useState([]);
-  const [id, setId] = useState("");
-  const [mem, setMem] = useState("");
-  const [editMood, setEditMood] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchUsers();
   }, []);
+
   const fetchUsers = async () => {
+    setLoading(true);
     const userList = await getUsers();
-    setMembers(userList);
+    setMembers(userList || []);
+    setLoading(false);
   };
-  const findMember = () => {
-    setEditMood(true);
-    const member = members.find((m) => m.id === id);
-    setMem(member);
-  };
+
+  const filteredMembers = useMemo(() => {
+    if (!searchQuery.trim()) return members;
+
+    const { en, bn, raw } = normalizeSearchQuery(searchQuery);
+
+    return members.filter((m) => {
+      const mId = String(m.id || "");
+      const mIdEn = convertBengaliToEnglish(mId);
+
+      const mName = (m.name || "").toLowerCase();
+      const mNameEn = (m.nameEn || "").toLowerCase();
+      const mPhone = (m.phone || "").toLowerCase();
+
+      // Check ID match in Bangla or English
+      if (mId === raw || mId === bn || mIdEn === en || mId === en) return true;
+
+      // Check Name match in Bangla or English
+      if (mName.includes(raw) || mNameEn.includes(raw)) return true;
+
+      // Check Phone match
+      if (mPhone.includes(raw) || mPhone.includes(en)) return true;
+
+      return false;
+    });
+  }, [members, searchQuery]);
+
+  const sortedMembers = useMemo(() => {
+    return [...filteredMembers].sort((a, b) => {
+      const idA = parseInt(convertBengaliToEnglish(String(a.id || "0")), 10) || 0;
+      const idB = parseInt(convertBengaliToEnglish(String(b.id || "0")), 10) || 0;
+      return idA - idB;
+    });
+  }, [filteredMembers]);
 
   return (
     <ProtectedRoute>
-      <main className="min-h-svh bg-white">
-        <div className="w-5/6 mx-auto">
-          <nav className="py-4 flex justify-between items-center">
-            <Link className="text-blue-400" href="/admin/home">
-              Back to Home
+      <main className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-8">
+        <div className="max-w-5xl mx-auto px-4">
+          <nav className="py-4 flex justify-between items-center border-b border-slate-200 dark:border-slate-800 mb-6">
+            <Link
+              className="inline-flex items-center text-sm font-semibold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 transition-colors"
+              href="/admin/home"
+            >
+              ← Back to Admin Dashboard
             </Link>
             <Link
-              className="bg-blue-400 p-4 text-white max-sm:p-1 max-sm:text-sm"
+              className="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow transition-colors"
               href="/admin/add-new-member"
             >
-              + Add new member
+              + Add New Member
             </Link>
           </nav>
-          <h1 className="text-lg font-bold text-center my-4">
-            All the members
-          </h1>
-          <div className="py-8 bg-gray-100 rounded px-4">
+
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div>
-              <div className="p-6">
-                <input
-                  className="w-5/6 bg-blue-100 py-2 px-3 text-gray-900 border-none outline-none"
-                  type="text"
-                  value={id}
-                  placeholder="Input Id"
-                  onChange={(e) => setId(e.target.value)}
-                />
-                <button
-                  onClick={findMember}
-                  className="w-50 bg-blue-300 py-2 px-3 text-white"
-                >
-                  Search
-                </button>
-              </div>
-              {editMood && (
-                <div>
-                  {mem ? (
-                    <Member userData={mem} isWeb={false} />
-                  ) : (
-                    <p className="my-10 text-center">Member not found</p>
-                  )}
-                </div>
-              )}
+              <h1 className="text-2xl font-bold text-emerald-800 dark:text-emerald-400">
+                All Society Members
+              </h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Total Members: <span className="font-semibold text-emerald-700">{members.length}</span>
+              </p>
+            </div>
+
+            <div className="w-full md:w-80">
+              <input
+                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-4 text-sm focus:ring-2 focus:ring-emerald-500 outline-none shadow-sm"
+                type="text"
+                value={searchQuery}
+                placeholder="Search by ID (101/১০১), Name, or Phone..."
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
           </div>
-          <div className="p-4 mt-4 bg-gray-300">
-            {members.length > 0 ? (
-              <div>
-                {members
-                  .sort((a, b) => {
-                    const idA = parseInt(convertBengaliToEnglish(a.id), 10);
-                    const idB = parseInt(convertBengaliToEnglish(b.id), 10);
-                    return idA - idB;
-                  })
-                  .map((user) => (
-                    <Member key={user.id} userData={user} fun={fetchUsers} />
-                  ))}
+
+          <div className="space-y-3">
+            {loading ? (
+              <div className="py-12 text-center text-sm text-slate-500">
+                Loading members...
               </div>
+            ) : sortedMembers.length > 0 ? (
+              sortedMembers.map((user) => (
+                <Member key={user.id} userData={user} fun={fetchUsers} isWeb={false} />
+              ))
             ) : (
-              <p className="text-center">No member are here</p>
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center text-slate-500 text-sm">
+                No members found matching &quot;{searchQuery}&quot;.
+              </div>
             )}
           </div>
         </div>

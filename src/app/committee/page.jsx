@@ -6,39 +6,55 @@ import { getCommittees } from "@/lib/userService";
 import Footer from "@/components/Footer";
 import Loading from "@/components/Loading";
 import CommitteeCard from "@/components/CommitteeCard";
-export default function Contact() {
-  const [meta, setMeta] = useState(null);
+
+export default function Committee() {
+  const [committees, setCommittees] = useState(null);
 
   useEffect(() => {
     getData();
   }, []);
+
   const getData = async () => {
     const d = await getCommittees();
-    setMeta(d);
+    setCommittees(d || []);
   };
-  if (!meta) {
+
+  if (!committees) {
     return <Loading />;
   }
+
   return (
-    <main className="bg-white min-h-svh">
-      <div className="w-5/6 mx-auto">
-        <nav className="py-4">
-          <Link className="text-blue-400" href="/">
-            হোম এ ফিরে যান
+    <main className="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 flex flex-col justify-between py-8">
+      <div className="max-w-5xl mx-auto px-4 w-full">
+        <nav className="mb-6">
+          <Link
+            className="inline-flex items-center text-sm font-semibold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 transition-colors"
+            href="/"
+          >
+            ← প্রধান পাতায় ফিরে যান
           </Link>
         </nav>
-        <div>
-          <h1 className="text-center font-bold pb-2 mb-4">পরিচালক পর্ষদ</h1>
-          <div className="my-4 flex flex-wrap">
-            {meta?.map((committee) => (
-              <CommitteeCard
-                key={committee.id}
-                isweb={true}
-                details={committee}
-              />
+
+        <div className="text-center mb-8">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-emerald-800 dark:text-emerald-400">
+            পরিচালক পর্ষদ
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            বাগধা ক্রিয়েটিভ সোসাইটি-এর পরিচালনা কমিটি
+          </p>
+        </div>
+
+        {committees.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {committees.map((committee) => (
+              <CommitteeCard key={committee.id} isweb={true} details={committee} />
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="bg-white dark:bg-slate-800 p-8 rounded-xl text-center text-sm text-slate-500 border border-slate-200 dark:border-slate-700">
+            কোনো পরিচালনা কমিটি তালিকা পাওয়া যায়নি।
+          </div>
+        )}
       </div>
       <Footer />
     </main>

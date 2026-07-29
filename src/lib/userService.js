@@ -1,5 +1,5 @@
 // userService.js
-import { db, storage } from "./firebase";
+import { db } from "./firebase";
 import {
   collection,
   addDoc,
@@ -13,33 +13,27 @@ import {
   deleteDoc,
   updateDoc,
 } from "firebase/firestore";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject,
-  uploadBytesResumable,
-} from "firebase/storage";
+import { uploadToSupabase, deleteFromSupabase } from "./supabase";
+import { convertBengaliToEnglish, convertEnglishToBengali } from "./banglaToEnglish";
 
 const addUser = async (userData, file) => {
   try {
     let fileUrl = "";
 
     if (file) {
-      const storageRef = ref(storage, `userPictures/${userData.id}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      fileUrl = await getDownloadURL(snapshot.ref);
+      fileUrl = await uploadToSupabase(file, "userPictures");
     }
 
     const docRef = await addDoc(collection(db, "users"), {
       ...userData,
+      nameEn: userData.nameEn || "",
       pictureUrl: fileUrl,
     });
-    alert("successfully added user.");
+    alert("Successfully added user.");
     console.log("Document written with ID: ", docRef.id);
   } catch (e) {
     console.error("Error adding document: ", e);
-    alert("Someting is wrong!");
+    alert("Something went wrong while adding user: " + (e.message || e));
   }
 };
 const updateUser = async (userId, updatedData, file) => {
@@ -47,10 +41,8 @@ const updateUser = async (userId, updatedData, file) => {
     let fileUrl = updatedData.pictureUrl || ""; // Keep the existing picture URL if not updating
 
     if (file) {
-      // If a new file is provided, upload it to Firebase Storage
-      const storageRef = ref(storage, `userPictures/${userId}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      fileUrl = await getDownloadURL(snapshot.ref);
+      // If a new file is provided, upload it to Supabase Storage
+      fileUrl = await uploadToSupabase(file, "userPictures");
     }
     if (!userId) {
       throw new Error("User ID is not provided!");
@@ -72,7 +64,6 @@ const updateUser = async (userId, updatedData, file) => {
     });
 
     // Update the user document in Firestore
-
     await updateDoc(userDocRef, {
       ...updatedData,
       pictureUrl: file ? fileUrl : userData.pictureUrl,
@@ -82,7 +73,7 @@ const updateUser = async (userId, updatedData, file) => {
     console.log("Document updated with ID: ", userId);
   } catch (e) {
     console.error("Error updating document: ", e);
-    alert("Something went wrong!");
+    alert("Something went wrong: " + (e.message || e));
   }
 };
 
@@ -107,23 +98,13 @@ const deleteUser = async (userId) => {
       userData = doc.data();
     });
 
-    // Check and delete the user's picture from Firebase Storage, if it exists
+    // Delete user picture from Supabase Storage if present
     if (userData.pictureUrl) {
       try {
-        // Extract the path from the pictureUrl
-        const storagePath = userData.pictureUrl.split("/o/")[1].split("?")[0];
-        const storageRef = ref(storage, decodeURIComponent(storagePath));
-
-        console.log("Storage Ref:", storageRef);
-        await deleteObject(storageRef);
+        await deleteFromSupabase(userData.pictureUrl);
       } catch (storageError) {
         console.error("Error deleting user picture: ", storageError);
-        alert(
-          "Error deleting user picture, but proceeding with user deletion."
-        );
       }
-    } else {
-      console.warn("No picture URL found for this user.");
     }
     const querySnapshotMeta = await getDocs(collection(db, "metadata"));
     const meta = [];
@@ -327,22 +308,39 @@ const getUsers = async () => {
 
 const getUserById = async (userId) => {
   try {
-    const q = query(collection(db, "users"), where("id", "==", userId));
+    if (!userId) return null;
+    const idStr = String(userId);
+    const idEn = convertBengaliToEnglish(idStr);
+    const idBn = convertEnglishToBengali(idStr);
+
+    const q = query(
+      collection(db, "users"),
+      where("id", "in", [idStr, idEn, idBn])
+    );
     const querySnapshot = await getDocs(q);
 
-    if (querySnapshot.empty) {
-      throw new Error("No such user!");
+    if (!querySnapshot.empty) {
+      return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
     }
 
-    let userData = null;
-    querySnapshot.forEach((doc) => {
-      userData = { id: doc.id, ...doc.data() };
-    });
+    // Fallback: search all user docs if direct query returned empty
+    const allUsers = await getDocs(collection(db, "users"));
+    for (const d of allUsers.docs) {
+      const data = d.data();
+      const uIdStr = String(data.id || "");
+      if (
+        uIdStr === idStr ||
+        convertBengaliToEnglish(uIdStr) === idEn ||
+        uIdStr === idBn
+      ) {
+        return { id: d.id, ...data };
+      }
+    }
 
-    return userData;
+    return null;
   } catch (error) {
     console.error("Error fetching user:", error);
-    throw error;
+    return null;
   }
 };
 const createRule = async (rule) => {
@@ -547,31 +545,24 @@ const getMetaData = async () => {
 };
 
 const uploadImage = async (file) => {
-  return new Promise((resolve, reject) => {
-    const storageRef = ref(storage, `images/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      "state_changed",
-      null,
-      (error) => {
-        reject(error);
-      },
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        const docRef = await addDoc(collection(db, "images"), {
-          url: downloadURL,
-          name: file.name,
-        });
-        resolve({ id: docRef.id, url: downloadURL, name: file.name });
-      }
-    );
-  });
+  try {
+    const downloadURL = await uploadToSupabase(file, "gallery");
+    const docRef = await addDoc(collection(db, "images"), {
+      url: downloadURL,
+      name: file.name,
+      createdAt: new Date().toISOString(),
+    });
+    return { id: docRef.id, url: downloadURL, name: file.name };
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    throw error;
+  }
 };
 
 const deleteImage = async (image) => {
-  const storageRef = ref(storage, `images/${image.name}`);
-  await deleteObject(storageRef);
+  if (image.url) {
+    await deleteFromSupabase(image.url);
+  }
   await deleteDoc(doc(db, "images", image.id));
 };
 
