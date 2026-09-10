@@ -8,6 +8,8 @@ import Loading from "@/components/Loading";
 import InvestCard from "@/components/InvestCard";
 import HiddenNotice from "@/components/HiddenNotice";
 
+import NotFound from "@/app/not-found";
+
 export default function Deposite() {
   const [meta, setMeta] = useState(null);
   const [invest, setInvest] = useState(null);
@@ -37,6 +39,10 @@ export default function Deposite() {
 
   if (!meta) {
     return <Loading />;
+  }
+
+  if (meta.isDepositLocked || meta.depositLocked) {
+    return <NotFound />;
   }
 
   const totalAll = meta.totalAll || 0;

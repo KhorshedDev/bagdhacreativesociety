@@ -7,13 +7,54 @@ import { useAuth } from "@/context/AuthContext";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 
+import { useState, useEffect } from "react";
+import { getMetaData, createMetaData } from "@/lib/userService";
+
 export default function Home() {
   const router = useRouter();
   const { user } = useAuth();
+  const [meta, setMeta] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [notification, setNotification] = useState("");
+
+  useEffect(() => {
+    fetchMeta();
+  }, []);
+
+  const fetchMeta = async () => {
+    const data = await getMetaData();
+    setMeta(data || {});
+  };
 
   const handleLogout = async () => {
     await signOut(auth);
     router.push("/admin/");
+  };
+
+  const isDepositLocked = Boolean(meta?.isDepositLocked || meta?.depositLocked);
+
+  const toggleDepositLock = async () => {
+    if (!meta) return;
+    setIsUpdating(true);
+    try {
+      const nextStatus = !isDepositLocked;
+      await createMetaData(meta.id, {
+        isDepositLocked: nextStatus,
+        depositLocked: nextStatus,
+      });
+      await fetchMeta();
+      setNotification(
+        nextStatus
+          ? "🔒 /deposite রুটটি সফলভাবে লক করা হয়েছে (এখন ৪০৪ দেখাবে)!"
+          : "🔓 /deposite রুটটি সফলভাবে উন্মুক্ত করা হয়েছে (সবার জন্য দৃশ্যমান)!"
+      );
+      setTimeout(() => setNotification(""), 4000);
+    } catch (err) {
+      console.error(err);
+      alert("Error updating lock status: " + (err.message || err));
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const adminCards = [
@@ -56,6 +97,75 @@ export default function Home() {
               >
                 Log Out 🚪
               </button>
+            </div>
+          </div>
+
+          {/* Notification toast */}
+          {notification && (
+            <div className="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 text-sm font-semibold flex items-center justify-between shadow-sm animate-fade-in">
+              <span>{notification}</span>
+              <button
+                onClick={() => setNotification("")}
+                className="text-xs px-2 py-1 bg-emerald-100 dark:bg-emerald-900 rounded hover:bg-emerald-200 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* Route Access & Security Control */}
+          <div className="mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🛡️</span>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                    রুট অ্যাক্সেস কন্ট্রোল (Route Access Control)
+                  </h2>
+                  <span
+                    className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${
+                      isDepositLocked
+                        ? "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-800"
+                        : "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
+                    }`}
+                  >
+                    {isDepositLocked ? "🔒 লক করা (404 Not Found)" : "🟢 উন্মুক্ত (Active / Visible)"}
+                  </span>
+                </div>
+                <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
+                  <code className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-900 rounded font-mono text-emerald-700 dark:text-emerald-400 font-semibold">
+                    /deposite
+                  </code>{" "}
+                  {isDepositLocked
+                    ? "রুটটি বর্তমানে লক করা আছে। যেকোনো ব্যবহারকারী বা ভিজিটর প্রবেশ করলে ৪০৪ (Not Found) পেইজ দেখতে পাবে।"
+                    : "রুটটি বর্তমানে সবার জন্য উন্মুক্ত আছে। সাধারণ ব্যবহারকারীরা স্বাভাবিকভাবে প্রবেশ করতে পারবেন।"}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <Link
+                  href="/deposite"
+                  target="_blank"
+                  className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors inline-flex items-center gap-1.5"
+                >
+                  পেইজ টেস্ট করুন ↗
+                </Link>
+                <button
+                  onClick={toggleDepositLock}
+                  disabled={isUpdating || !meta}
+                  className={`px-4 py-2 text-xs font-bold rounded-xl shadow transition-all flex items-center gap-1.5 ${
+                    isDepositLocked
+                      ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                      : "bg-rose-600 hover:bg-rose-700 text-white"
+                  } disabled:opacity-50`}
+                >
+                  {isUpdating
+                    ? "আপডেট হচ্ছে..."
+                    : isDepositLocked
+                    ? "🔓 আনলক করুন (Make Visible)"
+                    : "🔒 লক করুন (Show 404)"}
+                </button>
+              </div>
             </div>
           </div>
 

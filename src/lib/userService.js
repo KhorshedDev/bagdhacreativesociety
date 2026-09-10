@@ -524,11 +524,23 @@ const deleteNotice = async (id) => {
 };
 const createMetaData = async (id, updatedMeta) => {
   try {
+    if (!id) {
+      const querySnapshot = await getDocs(collection(db, "metadata"));
+      if (!querySnapshot.empty) {
+        id = querySnapshot.docs[0].id;
+      } else {
+        const newDoc = await addDoc(collection(db, "metadata"), updatedMeta);
+        console.log("Document created with ID: ", newDoc.id);
+        return newDoc.id;
+      }
+    }
     const metaDoc = doc(db, "metadata", id);
     await setDoc(metaDoc, updatedMeta, { merge: true });
     console.log("Document updated with ID: ", id);
+    return id;
   } catch (e) {
     console.error("Error updating document: ", e);
+    throw e;
   }
 };
 const getMetaData = async () => {
