@@ -31,22 +31,22 @@ export default function Home() {
     router.push("/admin/");
   };
 
-  const isDepositLocked = Boolean(meta?.isDepositLocked || meta?.depositLocked);
+  const isMembersLocked = Boolean(meta?.isMembersLocked || meta?.membersLocked);
 
-  const toggleDepositLock = async () => {
+  const toggleMembersLock = async () => {
     if (!meta) return;
     setIsUpdating(true);
     try {
-      const nextStatus = !isDepositLocked;
+      const nextStatus = !isMembersLocked;
       await createMetaData(meta.id, {
-        isDepositLocked: nextStatus,
-        depositLocked: nextStatus,
+        isMembersLocked: nextStatus,
+        membersLocked: nextStatus,
       });
       await fetchMeta();
       setNotification(
         nextStatus
-          ? "🔒 /deposite রুটটি সফলভাবে লক করা হয়েছে (এখন ৪০৪ দেখাবে)!"
-          : "🔓 /deposite রুটটি সফলভাবে উন্মুক্ত করা হয়েছে (সবার জন্য দৃশ্যমান)!"
+          ? "🔒 /members রুটটি সফলভাবে লক করা হয়েছে (এখন ৪০৪ দেখাবে)!"
+          : "🔓 /members রুটটি সফলভাবে উন্মুক্ত করা হয়েছে (সবার জন্য দৃশ্যমান)!"
       );
       setTimeout(() => setNotification(""), 4000);
     } catch (err) {
@@ -124,19 +124,19 @@ export default function Home() {
                   </h2>
                   <span
                     className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${
-                      isDepositLocked
+                      isMembersLocked
                         ? "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-800"
                         : "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
                     }`}
                   >
-                    {isDepositLocked ? "🔒 লক করা (404 Not Found)" : "🟢 উন্মুক্ত (Active / Visible)"}
+                    {isMembersLocked ? "🔒 লক করা (404 Not Found)" : "🟢 উন্মুক্ত (Active / Visible)"}
                   </span>
                 </div>
                 <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
                   <code className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-900 rounded font-mono text-emerald-700 dark:text-emerald-400 font-semibold">
-                    /deposite
+                    /members
                   </code>{" "}
-                  {isDepositLocked
+                  {isMembersLocked
                     ? "রুটটি বর্তমানে লক করা আছে। যেকোনো ব্যবহারকারী বা ভিজিটর প্রবেশ করলে ৪০৪ (Not Found) পেইজ দেখতে পাবে।"
                     : "রুটটি বর্তমানে সবার জন্য উন্মুক্ত আছে। সাধারণ ব্যবহারকারীরা স্বাভাবিকভাবে প্রবেশ করতে পারবেন।"}
                 </p>
@@ -144,24 +144,24 @@ export default function Home() {
 
               <div className="flex items-center gap-3 shrink-0">
                 <Link
-                  href="/deposite"
+                  href="/members"
                   target="_blank"
                   className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors inline-flex items-center gap-1.5"
                 >
                   পেইজ টেস্ট করুন ↗
                 </Link>
                 <button
-                  onClick={toggleDepositLock}
+                  onClick={toggleMembersLock}
                   disabled={isUpdating || !meta}
                   className={`px-4 py-2 text-xs font-bold rounded-xl shadow transition-all flex items-center gap-1.5 ${
-                    isDepositLocked
+                    isMembersLocked
                       ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                       : "bg-rose-600 hover:bg-rose-700 text-white"
                   } disabled:opacity-50`}
                 >
                   {isUpdating
                     ? "আপডেট হচ্ছে..."
-                    : isDepositLocked
+                    : isMembersLocked
                     ? "🔓 আনলক করুন (Make Visible)"
                     : "🔒 লক করুন (Show 404)"}
                 </button>

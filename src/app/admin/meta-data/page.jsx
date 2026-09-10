@@ -174,11 +174,11 @@ export default function MetaData() {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xl">🛡️</span>
                 <h2 className="font-bold text-lg text-slate-900 dark:text-white">
-                  /deposite Route Security & Lock Control
+                  /members Route Security & Lock Control
                 </h2>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                Control whether the <code className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-900 rounded font-mono text-emerald-700 dark:text-emerald-400 font-semibold">/deposite</code> route is accessible or locked. If locked, anyone visiting this route will be shown the 404 (Not Found) page.
+                Control whether the <code className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-900 rounded font-mono text-emerald-700 dark:text-emerald-400 font-semibold">/members</code> route is accessible or locked. If locked, anyone visiting this route will be shown the 404 (Not Found) page.
               </p>
 
               <div className="p-5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -187,26 +187,26 @@ export default function MetaData() {
                     <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Current Status:</span>
                     <span
                       className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${
-                        Boolean(meta.isDepositLocked || meta.depositLocked)
+                        Boolean(meta.isMembersLocked || meta.membersLocked)
                           ? "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-800"
                           : "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
                       }`}
                     >
-                      {Boolean(meta.isDepositLocked || meta.depositLocked)
+                      {Boolean(meta.isMembersLocked || meta.membersLocked)
                         ? "🔒 Locked (Returns 404)"
                         : "🟢 Unlocked (Public Screen)"}
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {Boolean(meta.isDepositLocked || meta.depositLocked)
-                      ? "Visiting /deposite currently shows the 404 Not Found screen."
-                      : "Visiting /deposite currently shows the regular deposit & investment screen."}
+                    {Boolean(meta.isMembersLocked || meta.membersLocked)
+                      ? "Visiting /members currently shows the 404 Not Found screen."
+                      : "Visiting /members currently shows the regular members list screen."}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <Link
-                    href="/deposite"
+                    href="/members"
                     target="_blank"
                     className="flex-1 sm:flex-initial text-center px-3.5 py-2 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                   >
@@ -214,21 +214,21 @@ export default function MetaData() {
                   </Link>
                   <button
                     onClick={async () => {
-                      const currentLocked = Boolean(meta.isDepositLocked || meta.depositLocked);
+                      const currentLocked = Boolean(meta.isMembersLocked || meta.membersLocked);
                       const nextLocked = !currentLocked;
                       await createMetaData(meta.id, {
-                        isDepositLocked: nextLocked,
-                        depositLocked: nextLocked,
+                        isMembersLocked: nextLocked,
+                        membersLocked: nextLocked,
                       });
                       await getMeta();
                     }}
                     className={`flex-1 sm:flex-initial text-center px-4 py-2 text-xs font-bold rounded-lg text-white shadow transition-colors ${
-                      Boolean(meta.isDepositLocked || meta.depositLocked)
+                      Boolean(meta.isMembersLocked || meta.membersLocked)
                         ? "bg-emerald-600 hover:bg-emerald-700"
                         : "bg-rose-600 hover:bg-rose-700"
                     }`}
                   >
-                    {Boolean(meta.isDepositLocked || meta.depositLocked)
+                    {Boolean(meta.isMembersLocked || meta.membersLocked)
                       ? "🔓 Unlock Route"
                       : "🔒 Lock Route (Show 404)"}
                   </button>

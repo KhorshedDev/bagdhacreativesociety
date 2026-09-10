@@ -2,18 +2,21 @@
 
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
-import { getUsers } from "@/lib/userService";
+import { getUsers, getMetaData } from "@/lib/userService";
 import { convertBengaliToEnglish, normalizeSearchQuery } from "@/lib/banglaToEnglish";
 import Member from "@/components/Member";
 import Footer from "@/components/Footer";
+import NotFound from "@/app/not-found";
 
 export default function Members() {
   const [members, setMembers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [meta, setMeta] = useState(null);
 
   useEffect(() => {
     fetchUsers();
+    getMetaData().then((d) => setMeta(d || {}));
   }, []);
 
   const fetchUsers = async () => {
@@ -56,6 +59,10 @@ export default function Members() {
       return idA - idB;
     });
   }, [filteredMembers]);
+
+  if (meta?.isMembersLocked || meta?.membersLocked) {
+    return <NotFound />;
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col justify-between pt-4 pb-0">
