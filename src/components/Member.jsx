@@ -7,21 +7,25 @@ import PopUp from "@/components/PopUp";
 import { useRouter } from "next/navigation";
 import { formatBilingualId } from "@/lib/banglaToEnglish";
 
-const TableOfPay = ({ data }) => {
+import { useAuth } from "@/context/AuthContext";
+
+const TableOfPay = ({ data, canEdit }) => {
   const [edit, setEdit] = useState(false);
   const [newVal, setNewVal] = useState(0);
   return (
     <div className="py-3 px-3 flex flex-wrap justify-between items-center my-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-sm">
       {!edit ? (
         <>
-          <div className="flex flex-col m-1">
-            <button
-              onClick={() => setEdit(true)}
-              className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs mb-1"
-            >
-              Edit
-            </button>
-          </div>
+          {canEdit && (
+            <div className="flex flex-col m-1">
+              <button
+                onClick={() => setEdit(true)}
+                className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs mb-1"
+              >
+                Edit
+              </button>
+            </div>
+          )}
           <div className="m-1">
             <p className="font-semibold text-emerald-800 dark:text-emerald-300">{data.date}</p>
             <p className="text-xs text-slate-500">
@@ -62,6 +66,8 @@ const DEFAULT_AVATAR =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23059669'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' /%3E%3C/svg%3E";
 
 export default function Member({ isWeb, userData, fun }) {
+  const { user } = useAuth();
+  const canEdit = !isWeb && Boolean(user);
   const [expand, setExpand] = useState(false);
   const [editMood, setEditMood] = useState(false);
   const [userInfo, setUserInfo] = useState({
@@ -212,7 +218,7 @@ export default function Member({ isWeb, userData, fun }) {
                     .slice()
                     .reverse()
                     .map((item, idx) => (
-                      <TableOfPay key={item.month || idx} data={item} />
+                      <TableOfPay key={item.month || idx} data={item} canEdit={canEdit} />
                     ))}
                 </div>
               ) : (
